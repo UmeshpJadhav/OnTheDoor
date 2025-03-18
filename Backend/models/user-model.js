@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     email: {
-        type: String,
+        type: String, 
         required: true,
         unique: true
     },
@@ -23,4 +23,18 @@ const userSchema = new mongoose.Schema({
         required: true
     }
 }, { timestamps: true }); 
+
+
+
+function validateModle() {
+     joi.object({
+        
+     })
+}
+
+
+
+
+
+module.exports = mongoose.model("User", userSchema);
 
