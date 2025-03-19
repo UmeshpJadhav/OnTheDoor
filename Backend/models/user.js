@@ -1,5 +1,26 @@
 const mongoose = require("mongoose");
 
+
+const addressScheam = monmgoose.Schema({
+    state : {
+        type : string,
+        required : true
+    },
+    zip : {
+        type : Number,
+        required : true
+    },
+    city : {
+        type : String,
+        required : true
+    },
+    adrress : {
+        type : String,
+        required : true
+    }
+})
+
+
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -18,10 +39,7 @@ const userSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    addresses: {
-        type: String,
-        required: true
-    }
+    addresses: [addressScheam]   // Address ko array banayenge 
 }, { timestamps: true }); 
 
 
