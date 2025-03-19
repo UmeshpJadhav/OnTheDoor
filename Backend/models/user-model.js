@@ -26,10 +26,16 @@ const userSchema = new mongoose.Schema({
 
 
 
-function validateModle() {
+function validateModle(data) {
      joi.object({
-        
-     })
+        name : joi.String().min(3).required(),
+        email : joi.String().email().required(),
+        password : joi.String().required(),
+        phone : joi.String().required(),
+        addresses : joi.String().required()
+
+     });
+     Schema.validate(data)
 }
 
 
