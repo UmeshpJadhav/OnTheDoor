@@ -1,10 +1,25 @@
-const mongoose = required("mongoose");
+const mongoose = require("mongoose");
+const Joi = require("joi");
 
-const categoryModel = mongoose.Schema({
-    nmae : {
-        type : String,
-        required : true
+
+const categorySchema = mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+        minlength: 1,
+        maxlength: 50
     }
 });
 
-mondule.exports = mongoose.model("category", categoryModel);
+function validateCategory(data) {
+    const schema = Joi.object({
+        name: Joi.string().min(3).max(50).required()
+    });
+
+    return schema.validate(data);
+}
+
+module.exports = { 
+    categoryModel: mongoose.model("Category", categorySchema), 
+    validateCategory 
+};

@@ -56,18 +56,31 @@ Fields:
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+CartModel
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Fields: 
+  user      : the user who owns the cart 
+  products  : A list product in the cart 
+  totalPrice: total cost of everything in the cart 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 OrederModel
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Fields:
-User       : Reference to UserModel, indicating who placed the order.
-Product    : List of ordered products.
-totalPrice : Total cost of the order, including all charges.
-address    : Delivery address chosen by the user.
-status     : Order processing status (e.g., "Pending", "Shipped", "Delivered").
-Payment    : Reference to PaymentModel, linking payment details.
-delivery   : Reference to DeliveryModel, tracking delivery info.
+  User       : Reference to UserModel, indicating who placed the order.
+  Product    : List of ordered products.
+  totalPrice : Total cost of the order, including all charges.
+  address    : Delivery address chosen by the user.
+  status     : Order processing status (e.g., "Pending", "Shipped", "Delivered").
+  Payment    : Reference to PaymentModel, linking payment details.
+  delivery   : Reference to DeliveryModel, tracking delivery info.
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -77,11 +90,11 @@ PaymentModel
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Fields: 
-Order        : Reference to OrderModel, indicating the order being paid for.
-amount       : Amount paid by the user for the order.
-method       : Payment method used (e.g., "Credit Card", "UPI").
-status       : Payment status (e.g., "Completed", "Pending", "Failed").
-transactionId: Unique identifier for tracking the payment transaction.
+   Order        : Reference to OrderModel, indicating the order being paid for.
+   amount       : Amount paid by the user for the order.
+   method       : Payment method used (e.g., "Credit Card", "UPI").
+   status       : Payment status (e.g., "Completed", "Pending", "Failed").
+   transactionId: Unique identifier for tracking the payment transaction.
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
