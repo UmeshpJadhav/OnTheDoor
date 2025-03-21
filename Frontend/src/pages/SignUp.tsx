@@ -1,21 +1,39 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { FaGoogle, FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaGoogle, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaUser } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
-const Login: React.FC = () => {
+const SignUp: React.FC = () => {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validatePasswords = () => {
+    if (password && confirmPassword && password !== confirmPassword) {
+      setPasswordError("Passwords do not match");
+      return false;
+    } else {
+      setPasswordError("");
+      return true;
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    // Validate passwords
+    if (!validatePasswords()) return;
+    
     setIsLoading(true);
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
-      // Handle login logic here
+      // Handle signup logic here
     }, 1500);
   };
 
@@ -57,7 +75,7 @@ const Login: React.FC = () => {
         }}
       />
 
-      {/* Login Card */}
+      {/* Signup Card */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -65,7 +83,7 @@ const Login: React.FC = () => {
         className="relative z-10 bg-white/90 backdrop-blur-md p-8 md:p-10 rounded-2xl shadow-xl max-w-md w-full mx-4"
       >
         {/* Logo */}
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-6">
           <motion.div
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
@@ -81,10 +99,10 @@ const Login: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.5 }}
-          className="text-center mb-8"
+          className="text-center mb-6"
         >
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back!</h1>
-          <p className="text-gray-600">Sign in to continue shopping</p>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Create Account</h1>
+          <p className="text-gray-600">Sign up to start shopping</p>
         </motion.div>
 
         {/* Google Login Button */}
@@ -100,7 +118,7 @@ const Login: React.FC = () => {
           <div className="text-xl mr-3 text-red-500">
             <FaGoogle />
           </div>
-          Continue with Google
+          Sign up with Google
         </motion.button>
 
         {/* Divider */}
@@ -118,15 +136,34 @@ const Login: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Login Form */}
+        {/* Signup Form */}
         <motion.form 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.5 }}
           onSubmit={handleSubmit}
         >
+          {/* Name Input */}
+          <div className="mb-4">
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+            <div className="relative">
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <FaUser />
+              </div>
+              <input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+                placeholder="John Doe"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                required
+              />
+            </div>
+          </div>
+          
           {/* Email Input */}
-          <div className="mb-5">
+          <div className="mb-4">
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <div className="relative">
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -136,7 +173,7 @@ const Login: React.FC = () => {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 placeholder="your@email.com"
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
                 required
@@ -145,7 +182,7 @@ const Login: React.FC = () => {
           </div>
 
           {/* Password Input */}
-          <div className="mb-6">
+          <div className="mb-4">
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <div className="relative">
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -155,10 +192,14 @@ const Login: React.FC = () => {
                 id="password"
                 type={showPassword ? "text" : "password"}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setPassword(e.target.value);
+                  if (confirmPassword) validatePasswords();
+                }}
                 placeholder="••••••••"
                 className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
                 required
+                minLength={8}
               />
               <button 
                 type="button"
@@ -168,14 +209,25 @@ const Login: React.FC = () => {
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
             </div>
-            <div className="flex justify-end mt-2">
-              <Link to="/forgot-password" className="text-sm text-green-600 hover:text-green-700 hover:underline">
-                Forgot password?
-              </Link>
-            </div>
+            <p className="text-xs text-gray-500 mt-1">Password must be at least 8 characters</p>
           </div>
 
-          {/* Login Button */}
+
+          {/* Terms & Conditions */}
+          <div className="mb-6">
+            <label className="flex items-start">
+              <input
+                type="checkbox"
+                className="mt-1 form-checkbox text-green-600 rounded focus:ring-green-500"
+                required
+              />
+              <span className="ml-2 text-sm text-gray-600">
+                I agree to the <a href="/terms" className="text-green-600 hover:underline">Terms of Service</a> and <a href="/privacy" className="text-green-600 hover:underline">Privacy Policy</a>
+              </span>
+            </label>
+          </div>
+
+          {/* Signup Button */}
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -189,7 +241,7 @@ const Login: React.FC = () => {
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
             ) : null}
-            {isLoading ? 'Signing in...' : 'Sign In'}
+            {isLoading ? 'Creating account...' : 'Create Account'}
           </motion.button>
         </motion.form>
 
@@ -200,11 +252,11 @@ const Login: React.FC = () => {
           transition={{ delay: 0.7, duration: 0.5 }}
           className="mt-8 text-center text-sm text-gray-600"
         >
-          <p>Don't have an account? <Link to="/signup" className="text-green-600 font-medium hover:underline">Sign up</Link></p>
+          <p>Already have an account? <Link to="/login" className="text-green-600 font-medium hover:underline">Sign in</Link></p>
         </motion.div>
       </motion.div>
     </div>
   );
 };
 
-export default Login; 
+export default SignUp; 

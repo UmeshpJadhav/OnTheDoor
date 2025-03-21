@@ -7,7 +7,7 @@ import Map from "./pages/Map";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminProducts from "./pages/AdminProducts";
-
+import SignUp from "./pages/SignUp";
 const App: React.FC = () => {
   return (
     <Router>
@@ -15,6 +15,7 @@ const App: React.FC = () => {
         <Route path="/" element={<Home />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/login" element={<UserLogin />} />
+        <Route path="/signup" element={<SignUp />} />
         <Route path="/map" element={<Map />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
