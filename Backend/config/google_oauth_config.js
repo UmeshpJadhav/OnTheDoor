@@ -1,6 +1,8 @@
 var GoogleStrategy = require('passport-google-oauth20').Strategy;
 const userModel = require("../models/user");
 
+
+
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -8,10 +10,10 @@ passport.use(new GoogleStrategy({
   },
   function(accessToken, refreshToken, profile, cb) {
     try{
-
+    let user = userModel.findOne({ email: profile.emails[0].value })
     }
     catch(err){
-
+      
     }
   }
 ));
