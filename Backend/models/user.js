@@ -52,7 +52,6 @@ const userSchema = new mongoose.Schema({
   },
   phone: {
     type: Number,
-    required: true,
     min: 1000000000,  
     max: 9999999999
   },
@@ -68,7 +67,7 @@ function validateUser(data) {
     name: Joi.string().min(3).max(50).required(),
     email: Joi.string().email().min(5).max(255).pattern(/\S+@\S+\.\S+/).required(),
     password: Joi.string().min(5).max(8) .pattern(/^(?=.*[A-Za-z])(?=.*\d)/),
-    phone: Joi.number().min(1000000000).max(9999999999).required(),
+    phone: Joi.number().min(1000000000).max(9999999999),
     addresses: Joi.array().items(
       Joi.object({
         state: Joi.string().min(2).max(50).required(),
