@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FaGoogle, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaUser } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 const SignUp: React.FC = () => {
   const [name, setName] = useState("");
@@ -12,6 +13,7 @@ const SignUp: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [passwordError, setPasswordError] = useState("");
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const validatePasswords = () => {
     if (password && confirmPassword && password !== confirmPassword) {
@@ -23,18 +25,48 @@ const SignUp: React.FC = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     // Validate passwords
     if (!validatePasswords()) return;
     
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+
+    try {
+      const response = await axios.post('http://localhost:3000/user/register', {
+        name,
+        email,
+        password
+      });
+
+      if (response.data) {
+        // Store the token if your backend sends one
+        localStorage.setItem('token', response.data.token);
+        
+        // Redirect to login or dashboard
+        window.location.href = '/login';
+      }
+    } catch (error: any) {
+      // Handle specific error cases
+      if (error.response) {
+        switch (error.response.status) {
+          case 400:
+            alert('Invalid input data');
+            break;
+          case 409:
+            alert('Email already exists');
+            break;
+          default:
+            alert('An error occurred during signup');
+        }
+      } else {
+        alert('Network error occurred');
+      }
+      console.error('Signup error:', error);
+    } finally {
       setIsLoading(false);
-      // Handle signup logic here
-    }, 1500);
+    }
   };
 
   return (
@@ -112,13 +144,26 @@ const SignUp: React.FC = () => {
           transition={{ delay: 0.4, duration: 0.5 }}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          onClick={() => window.location.href = "/auth/google"}
-          className="flex items-center justify-center w-full bg-white border border-gray-300 text-gray-800 font-medium py-3 px-4 rounded-xl hover:bg-gray-50 transition duration-300 shadow-sm mb-6"
+          onClick={() => {
+            setIsGoogleLoading(true);
+            window.location.href = "http://localhost:3000/auth/google";
+          }}
+          disabled={isGoogleLoading}
+          className={`flex items-center justify-center w-full bg-white border border-gray-300 text-gray-800 font-medium py-3 px-4 rounded-xl hover:bg-gray-50 transition duration-300 shadow-sm mb-6 ${
+            isGoogleLoading ? 'opacity-70 cursor-not-allowed' : ''
+          }`}
         >
-          <div className="text-xl mr-3 text-red-500">
-            <FaGoogle />
-          </div>
-          Sign up with Google
+          {isGoogleLoading ? (
+            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          ) : (
+            <div className="text-xl mr-3 text-red-500">
+              <FaGoogle />
+            </div>
+          )}
+          {isGoogleLoading ? 'Connecting to Google...' : 'Sign up with Google'}
         </motion.button>
 
         {/* Divider */}
@@ -211,7 +256,6 @@ const SignUp: React.FC = () => {
             </div>
             <p className="text-xs text-gray-500 mt-1">Password must be at least 8 characters</p>
           </div>
-
 
           {/* Terms & Conditions */}
           <div className="mb-6">

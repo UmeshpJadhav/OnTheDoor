@@ -1,7 +1,14 @@
 const express = require("express");
 const app = express();
-const expressSession = require('express-session')
+const expressSession = require('express-session');
+const cors = require("cors");
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+}));
+const cookieParser = require("cookie-parser");
 const authRouter = require("./routes/auth");
+const userRouter = require("./routes/userRouter");
 const path = require("path");
 require('dotenv').config()  // IF we dont write this gives the uri eeror always remember when we used env dont forgot to write require("dotenv").config()
 const connectDB = require("./config/mongoose-connection");
@@ -11,6 +18,7 @@ require("./config/google_oauth_config");
 //app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.use(
     expressSession({
@@ -25,7 +33,7 @@ connectDB();
 
 app.use("/", indexRouter);
 app.use("/auth", authRouter)
-
+app.use("/user",userRouter);
 
 
 

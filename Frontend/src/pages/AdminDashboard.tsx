@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { FiUsers, FiPackage, FiShoppingBag, FiDollarSign, FiEdit2, FiTrash2, FiPlus } from 'react-icons/fi';
+//import { productAPI, categoryAPI } from '../services/api';
+import { toast } from 'react-toastify';
 
 interface OrderData {
   id: string;
@@ -56,6 +58,7 @@ const AdminDashboard: React.FC = () => {
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<ProductData | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<CategoryData | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Simulate data fetching
   useEffect(() => {
@@ -66,6 +69,110 @@ const AdminDashboard: React.FC = () => {
       { id: '3', customer: 'Mike Johnson', amount: 499, status: 'completed', date: '2024-03-18' },
     ]);
   }, []);
+
+  // Fetch initial data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [productsRes, categoriesRes] = await Promise.all([
+          productAPI.getAllProducts(),
+          categoryAPI.getAllCategories()
+        ]);
+        
+        setProducts(productsRes.data);
+        setCategories(categoriesRes.data);
+      } catch (error) {
+        toast.error('Error fetching data');
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Handle product form submission
+  const handleProductSubmit = async (formData: Omit<ProductData, 'id'>) => {
+    try {
+      setIsLoading(true);
+      
+      if (selectedProduct) {
+        // Update existing product
+        const response = await productAPI.updateProduct(selectedProduct.id, formData);
+        setProducts(products.map(p => 
+          p.id === selectedProduct.id ? response.data : p
+        ));
+        toast.success('Product updated successfully');
+      } else {
+        // Create new product
+        const response = await productAPI.createProduct(formData);
+        setProducts([...products, response.data]);
+        toast.success('Product created successfully');
+      }
+      
+      setShowProductModal(false);
+    } catch (error) {
+      toast.error('Error saving product');
+      console.error('Error saving product:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle product deletion
+  const handleDeleteProduct = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this product?')) return;
+    
+    try {
+      await productAPI.deleteProduct(id);
+      setProducts(products.filter(p => p.id !== id));
+      toast.success('Product deleted successfully');
+    } catch (error) {
+      toast.error('Error deleting product');
+      console.error('Error deleting product:', error);
+    }
+  };
+
+  // Handle category form submission
+  const handleCategorySubmit = async (formData: Omit<CategoryData, 'id'>) => {
+    try {
+      setIsLoading(true);
+      
+      if (selectedCategory) {
+        // Update existing category
+        const response = await categoryAPI.updateCategory(selectedCategory.id, formData);
+        setCategories(categories.map(c => 
+          c.id === selectedCategory.id ? response.data : c
+        ));
+        toast.success('Category updated successfully');
+      } else {
+        // Create new category
+        const response = await categoryAPI.createCategory(formData);
+        setCategories([...categories, response.data]);
+        toast.success('Category created successfully');
+      }
+      
+      setShowCategoryModal(false);
+    } catch (error) {
+      toast.error('Error saving category');
+      console.error('Error saving category:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle category deletion
+  const handleDeleteCategory = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this category?')) return;
+    
+    try {
+      await categoryAPI.deleteCategory(id);
+      setCategories(categories.filter(c => c.id !== id));
+      toast.success('Category deleted successfully');
+    } catch (error) {
+      toast.error('Error deleting category');
+      console.error('Error deleting category:', error);
+    }
+  };
 
   return (
     <div className="bg-gray-100 min-h-screen">
@@ -217,12 +324,7 @@ const AdminDashboard: React.FC = () => {
                           <FiEdit2 />
                         </button>
                         <button
-                          onClick={() => {
-                            // Add delete confirmation
-                            if (window.confirm('Are you sure you want to delete this product?')) {
-                              setProducts(products.filter(p => p.id !== product.id));
-                            }
-                          }}
+                          onClick={() => handleDeleteProduct(product.id)}
                           className="text-red-600 hover:text-red-800"
                         >
                           <FiTrash2 />
@@ -278,11 +380,7 @@ const AdminDashboard: React.FC = () => {
                           <FiEdit2 />
                         </button>
                         <button
-                          onClick={() => {
-                            if (window.confirm('Are you sure you want to delete this category?')) {
-                              setCategories(categories.filter(c => c.id !== category.id));
-                            }
-                          }}
+                          onClick={() => handleDeleteCategory(category.id)}
                           className="text-red-600 hover:text-red-800"
                         >
                           <FiTrash2 />
@@ -305,8 +403,7 @@ const AdminDashboard: React.FC = () => {
               </h3>
               <form onSubmit={(e) => {
                 e.preventDefault();
-                // Add form handling logic here
-                setShowProductModal(false);
+                handleProductSubmit(selectedProduct as Omit<ProductData, 'id'>);
               }}>
                 <div className="space-y-4">
                   <div>
@@ -374,8 +471,7 @@ const AdminDashboard: React.FC = () => {
               </h3>
               <form onSubmit={(e) => {
                 e.preventDefault();
-                // Add form handling logic here
-                setShowCategoryModal(false);
+                handleCategorySubmit(selectedCategory as Omit<CategoryData, 'id'>);
               }}>
                 <div className="space-y-4">
                   <div>

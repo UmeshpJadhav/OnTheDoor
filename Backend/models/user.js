@@ -47,13 +47,17 @@ const userSchema = new mongoose.Schema({
   password: {  
     type: String,
     minlength: 5,
-    maxlength: 8,
     match: [/(?=.*[A-Za-z])(?=.*\d)/, "Password must contain at least one letter and one number"]
   },
   phone: {
     type: Number,
     min: 1000000000,  
     max: 9999999999
+  },
+  role:{
+    type : String,
+    enum : [ "user", "admin" ],
+    default : "user"
   },
   addresses: {
     type: [addressSchema],
@@ -66,8 +70,9 @@ function validateUser(data) {
   const schema = Joi.object({
     name: Joi.string().min(3).max(50).required(),
     email: Joi.string().email().min(5).max(255).pattern(/\S+@\S+\.\S+/).required(),
-    password: Joi.string().min(5).max(8) .pattern(/^(?=.*[A-Za-z])(?=.*\d)/),
+    password: Joi.string().min(5).pattern(/^(?=.*[A-Za-z])(?=.*\d)/),
     phone: Joi.number().min(1000000000).max(9999999999),
+    role : Joi.string(),
     addresses: Joi.array().items(
       Joi.object({
         state: Joi.string().min(2).max(50).required(),

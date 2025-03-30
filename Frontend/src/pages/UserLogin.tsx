@@ -2,21 +2,58 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FaGoogle, FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+
+    try {
+      const response = await axios.post('http://localhost:3000/user/login', {
+        email,
+        password
+      }, {
+        withCredentials: true // Important for handling cookies
+      });
+
+      if (response.data) {
+        // If using tokens
+        if (response.data.token) {
+          localStorage.setItem('token', response.data.token);
+        }
+        
+        // Redirect to home page or dashboard after successful login
+        window.location.href = '/';
+      }
+    } catch (error: any) {
+      if (error.response) {
+        switch (error.response.status) {
+          case 400:
+            alert('Invalid email or password');
+            break;
+          case 401:
+            alert('Unauthorized access');
+            break;
+          case 404:
+            alert('User not found');
+            break;
+          default:
+            alert('An error occurred during login');
+        }
+      } else {
+        alert('Network error occurred');
+      }
+      console.error('Login error:', error);
+    } finally {
       setIsLoading(false);
-      // Handle login logic here
-    }, 1500);
+    }
   };
 
   return (
@@ -65,7 +102,7 @@ const Login: React.FC = () => {
         className="relative z-10 bg-white/90 backdrop-blur-md p-8 md:p-10 rounded-2xl shadow-xl max-w-md w-full mx-4"
       >
         {/* Logo */}
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-6">
           <motion.div
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
@@ -81,10 +118,10 @@ const Login: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.5 }}
-          className="text-center mb-8"
+          className="text-center mb-6"
         >
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back!</h1>
-          <p className="text-gray-600">Sign in to continue shopping</p>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h1>
+          <p className="text-gray-600">Sign in to your account</p>
         </motion.div>
 
         {/* Google Login Button */}
@@ -94,13 +131,26 @@ const Login: React.FC = () => {
           transition={{ delay: 0.4, duration: 0.5 }}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          onClick={() => window.location.href = "/auth/google"}
-          className="flex items-center justify-center w-full bg-white border border-gray-300 text-gray-800 font-medium py-3 px-4 rounded-xl hover:bg-gray-50 transition duration-300 shadow-sm mb-6"
+          onClick={() => {
+            setIsGoogleLoading(true);
+            window.location.href = "http://localhost:3000/auth/google";
+          }}
+          disabled={isGoogleLoading}
+          className={`flex items-center justify-center w-full bg-white border border-gray-300 text-gray-800 font-medium py-3 px-4 rounded-xl hover:bg-gray-50 transition duration-300 shadow-sm mb-6 ${
+            isGoogleLoading ? 'opacity-70 cursor-not-allowed' : ''
+          }`}
         >
-          <div className="text-xl mr-3 text-red-500">
-            <FaGoogle />
-          </div>
-          Continue with Google
+          {isGoogleLoading ? (
+            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          ) : (
+            <div className="text-xl mr-3 text-red-500">
+              <FaGoogle />
+            </div>
+          )}
+          {isGoogleLoading ? 'Connecting to Google...' : 'Sign in with Google'}
         </motion.button>
 
         {/* Divider */}
@@ -124,9 +174,10 @@ const Login: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.5 }}
           onSubmit={handleSubmit}
+          className="space-y-4"
         >
           {/* Email Input */}
-          <div className="mb-5">
+          <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <div className="relative">
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -145,7 +196,7 @@ const Login: React.FC = () => {
           </div>
 
           {/* Password Input */}
-          <div className="mb-6">
+          <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <div className="relative">
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -168,11 +219,17 @@ const Login: React.FC = () => {
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
             </div>
-            <div className="flex justify-end mt-2">
-              <Link to="/forgot-password" className="text-sm text-green-600 hover:text-green-700 hover:underline">
-                Forgot password?
-              </Link>
-            </div>
+          </div>
+
+          {/* Remember Me & Forgot Password */}
+          <div className="flex items-center justify-between">
+            <label className="flex items-center">
+              <input type="checkbox" className="form-checkbox text-green-600 rounded focus:ring-green-500" />
+              <span className="ml-2 text-sm text-gray-600">Remember me</span>
+            </label>
+            <Link to="/forgot-password" className="text-sm text-green-600 hover:underline">
+              Forgot password?
+            </Link>
           </div>
 
           {/* Login Button */}
@@ -181,7 +238,9 @@ const Login: React.FC = () => {
             whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={isLoading}
-            className={`w-full bg-green-600 text-white font-medium py-3 px-4 rounded-xl hover:bg-green-700 transition duration-300 shadow-md flex items-center justify-center ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+            className={`w-full bg-green-600 text-white font-medium py-3 px-4 rounded-xl hover:bg-green-700 transition duration-300 shadow-md flex items-center justify-center ${
+              isLoading ? 'opacity-70 cursor-not-allowed' : ''
+            }`}
           >
             {isLoading ? (
               <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -189,7 +248,7 @@ const Login: React.FC = () => {
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
             ) : null}
-            {isLoading ? 'Signing in...' : 'Sign In'}
+            {isLoading ? 'Signing in...' : 'Sign in'}
           </motion.button>
         </motion.form>
 
