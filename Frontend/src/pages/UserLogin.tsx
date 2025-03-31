@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FaGoogle, FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
 const Login: React.FC = () => {
@@ -10,6 +10,9 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as any)?.from?.pathname || '/';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,17 +23,12 @@ const Login: React.FC = () => {
         email,
         password
       }, {
-        withCredentials: true // Important for handling cookies
+        withCredentials: true
       });
 
       if (response.data) {
-        // If using tokens
-        if (response.data.token) {
-          localStorage.setItem('token', response.data.token);
-        }
-        
-        // Redirect to home page or dashboard after successful login
-        window.location.href = '/';
+        localStorage.setItem('userRole', 'user');
+        navigate('/');
       }
     } catch (error: any) {
       if (error.response) {

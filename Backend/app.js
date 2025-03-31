@@ -13,6 +13,7 @@ const path = require("path");
 require('dotenv').config()  // IF we dont write this gives the uri eeror always remember when we used env dont forgot to write require("dotenv").config()
 const connectDB = require("./config/mongoose-connection");
 const indexRouter = require("./routes/indexRouter");
+const adminRouter = require("./routes/adminRouter");
 require("./config/google_oauth_config");
 
 //app.use(express.static(path.join(__dirname, "public")));
@@ -34,13 +35,7 @@ connectDB();
 app.use("/", indexRouter);
 app.use("/auth", authRouter)
 app.use("/user",userRouter);
-
-
-
-
-
-
-
+app.use("/admin" , adminRouter);
 
 
 const PORT = process.env.PORT || 3000

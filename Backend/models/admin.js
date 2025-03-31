@@ -21,13 +21,14 @@ const adminSchema = mongoose.Schema({
         type: String,
         required: true,
         minlength: 5,
-        maxlength: 8,
         match: [/(?=.*[A-Za-z])(?=.*\d)/]
     },
     role: {
         type: String,
         required: true,
-        enum: ["superadmin", "admin",] 
+        enum: ["superadmin", "admin",],
+        default : "admin"
+
     }
 }, { timestamps: true });
 
@@ -36,7 +37,7 @@ function validateAdmin(data) {
     const schema = Joi.object({
         name: Joi.string().min(3).max(50).required(),
         email: Joi.string().email().min(5).max(255).pattern(/\S+@\S+\.\S+/).required(),
-        password: Joi.string().min(5).max(8).pattern(/^(?=.*[A-Za-z])(?=.*\d)/).required(),
+        password: Joi.string().min(5).pattern(/^(?=.*[A-Za-z])(?=.*\d)/).required(),
         role: Joi.string().valid("superadmin", "admin").required()
     });
 
